@@ -4,20 +4,64 @@ defmodule FieldMask do
   """
   @delimiters [",", "/", "(", ")"]
 
-  @doc """
+  @doc ~S"""
   Compile text with Partial Responses protocol of Google+ API
+
+  ## Examples
+
+      iex> FieldMask.compile("a,b,c")
+      {:ok, %{"a" => %{}, "b" => %{}, "c" => %{}}}
+
+      iex> FieldMask.compile("a/b/c")
+      {:ok, %{"a" => %{"b" => %{"c" => %{}}}}}
+
+      iex> FieldMask.compile("a(b,c)")
+      {:ok, %{"a" => %{"b" => %{}, "c" => %{}}}}
+
+      iex> FieldMask.compile("a/*/c")
+      {:ok, %{"a" => %{"*" => %{"c" => %{}}}}}
+
+      iex> FieldMask.compile("ob,a(k,z(f,g/d))")
+      {
+        :ok,
+        %{
+          "a" => %{"k" => %{}, "z" => %{"f" => %{}, "g" => %{"d" => %{}}}},
+          "ob" => %{}
+        }
+      }
+
+      iex> FieldMask.compile("a(b,c")
+      {:error, "Invalid text with unmatchable brackets: a(b,c"}
+
+      iex> FieldMask.compile("a(b//c")
+      {:error, "Fail to parse text a(b//c: %ArgumentError{message: \"could not put/update key \\\"c\\\" on a nil value\"}"}
   """
   def compile(text) when is_binary(text) do
-    {tree, path, stack, _} = text |> scan() |> parse()
+    text
+    |> scan()
+    |> parse()
+    |> (fn {tree, _, stack, _} ->
+          stack
+          |> Enum.reverse()
+          |> Enum.filter(&(&1 !== "/"))
+          |> Enum.reduce(0, fn token, acc ->
+            case token do
+              "(" -> acc + 1
+              ")" -> acc - 1
+              _ -> acc
+            end
+          end)
+          |> (fn
+                0 ->
+                  {:ok, tree}
 
-    cond do
-      length(path) > 0 -> {:error, "Invalid text with inconsistent recursive depth: #{text}"}
-      length(stack) > 0 -> {:error, "Invalid text with unmatchable brackets or slash: #{text}"}
-      # TODO
-      true -> nil
-    end
+                _ ->
+                  {:error, "Invalid text with unmatchable brackets: #{text}"}
+              end).()
+        end).()
   rescue
-    InvalidText -> {:error, "Invalid text with unmatchable brackets: #{text}"}
+    InvalidText -> {:error, "Invalid text: #{text}"}
+    e -> {:error, "Fail to parse text #{text}: #{inspect(e)}"}
   end
 
   @doc """
@@ -70,7 +114,11 @@ defmodule FieldMask do
 
       case token do
         "," ->
-          acc
+          if List.first(stack) === "/" do
+            {tree, tl(path), tl(stack), token}
+          else
+            acc
+          end
 
         "/" ->
           {tree, [last_token | path], [token | stack], token}
@@ -79,20 +127,10 @@ defmodule FieldMask do
           {tree, [last_token | path], [token | stack], token}
 
         ")" ->
-          if List.first(stack) !== "(" do
-            raise InvalidText
-          end
-
-          {tree, tl(path), tl(stack), token}
+          {tree, tl(path), [token | stack], token}
 
         _ ->
-          tree = put_in(tree, Enum.reverse([token | path]), %{})
-
-          if List.first(stack) === "/" do
-            {tree, tl(path), tl(stack), token}
-          else
-            {tree, path, stack, token}
-          end
+          {put_in(tree, Enum.reverse([token | path]), %{}), path, stack, token}
       end
     end)
   end
