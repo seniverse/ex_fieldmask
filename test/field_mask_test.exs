@@ -3,7 +3,7 @@ defmodule FieldMaskTest do
   use ExUnit.Case
   doctest FieldMask
 
-  test "offcial example of Google+" do
+  test "official example of Google+" do
     text = "url,object(content,attachments/url)"
 
     object = %{
