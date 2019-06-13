@@ -28,7 +28,7 @@ defmodule FieldMask.MixProject do
       ],
       docs: [
         extras: ["README.md", "CHANGELOG.md"],
-        main: "README"
+        main: "readme"
       ]
     ]
   end
