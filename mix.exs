@@ -27,8 +27,8 @@ defmodule FieldMask.MixProject do
         maintainers: ["Maples7"]
       ],
       docs: [
-        extras: ["README.md": [title: "ReadMe"], "CHANGELOG.md": [title: "ChangeLog"]],
-        main: "ReadMe"
+        extras: ["README.md", "CHANGELOG.md"],
+        main: "README"
       ]
     ]
   end
