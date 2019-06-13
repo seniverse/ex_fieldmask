@@ -1,0 +1,17 @@
+language: elixir
+elixir:
+  - '1.8'
+otp_release:
+  - '21.0'
+env:
+  - MIX_ENV=test
+before_install:
+  - make all
+script:
+  - make test
+after_success:
+  - mix coveralls.travis
+cache:
+  directories:
+    - _build
+    - deps

@@ -12,7 +12,24 @@ defmodule FieldMask.MixProject do
       description:
         "FieldMask implements Partial Responses protocol of Google+ API purely in Elixir via algorithmic method rather than Grammar way",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test],
+      source_url: "https://github.com/seniverse/ex_fieldmask",
+      homepage_url: "https://hex.pm/packages/ex_fieldmask",
+      package: [
+        licenses: ["Apache 2.0"],
+        links: %{
+          "GitHub" => "https://github.com/seniverse/ex_fieldmask",
+          "Docs" => "https://hexdocs.pm/ex_fieldmask",
+          "Author" => "http://maples7.com/about/"
+        },
+        maintainers: ["Maples7"]
+      ],
+      docs: [
+        extras: ["README.md": [title: "ReadMe"], "CHANGELOG.md": [title: "ChangeLog"]],
+        main: "ReadMe"
+      ]
     ]
   end
 
@@ -26,7 +43,8 @@ defmodule FieldMask.MixProject do
     [
       {:pre_commit_hook, ">= 1.2.0", only: :dev, runtime: false},
       {:credo, ">= 1.0.0", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.19", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.11", only: [:dev, :test], runtime: false}
     ]
   end
 end
