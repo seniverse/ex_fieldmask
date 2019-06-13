@@ -57,7 +57,7 @@ Use [`Poison`](https://github.com/devinus/poison) or other JSON related packages
 
 Take a look at [json-mask#syntax](https://github.com/nemtsov/json-mask#syntax) for the syntax and grammar of Partial Responses protocol of Google+ API.
 
-Unlike package [fieldmask](https://github.com/seniverse/fieldmask) also in the [Seniverse](https://github.com/seniverse) orgnization, this one adopt algorithmic way to parse descriptive `text` and mask your data object. By this way, it's not that strict while parsing text. For example, `"a(b)c"` is equivalent to `"a(b),c"` although you miss the comma `,`. They can both pass the validation and compiled as `%{"a" => %{"b" => %{}}, "c" => %{}}` to the masking job. This is intentional but you should always use the strict valid syntax.
+Unlike package [fieldmask](https://github.com/seniverse/fieldmask) also in the [Seniverse](https://github.com/seniverse) orgnization, this one adopt algorithmic way to parse descriptive `text` and mask your data object. By this way, it's not that strict while parsing text. For example, `"a(b)c"` is equivalent to `"a(b),c"` although you miss the comma `,`. They can both pass the validation and compiled as `%{"a" => %{"b" => %{}}, "c" => %{}}` to do the masking job. This is intentional but you should always use the strict valid syntax.
 
 ## Benchmark
 
