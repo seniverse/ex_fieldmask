@@ -5,7 +5,7 @@
 [![hex.pm version](https://img.shields.io/hexpm/v/ex_fieldmask.svg)](https://hex.pm/packages/ex_fieldmask)
 [![hex.pm downloads](https://img.shields.io/hexpm/dt/ex_fieldmask.svg)](https://hex.pm/packages/ex_fieldmask)
 
-FieldMask implements [Partial Responses protocol of Google+ API](https://developers.google.com/+/web/api/rest/#partial-responses) purely in Elixir via algorithmic method rather than Grammar way which is adopted by [fieldmask](https://github.com/seniverse/fieldmask).
+FieldMask implements [Partial Responses protocol of Google+ API](https://developers.google.com/+/web/api/rest/#partial-responses) purely in Elixir via algorithmic method rather than grammar way which is adopted by [fieldmask](https://github.com/seniverse/fieldmask).
 
 It's the counterpart of [JSON Mask](https://github.com/nemtsov/json-mask) in JavaScript and [jsonmask](https://github.com/zapier/jsonmask) in Python.
 
