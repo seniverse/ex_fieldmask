@@ -55,41 +55,41 @@ defmodule FieldMask do
       {:error, "%ArgumentError{message: \"Wrong type for data: {%{\\\"c\\\" => 2, \\\"e\\\" => 1}, %{\\\"c\\\" => 4, \\\"f\\\" => 3}}\"}"}
   """
   def reveal(tree, data) when is_map(tree) do
-    keys = Map.keys(tree)
-
-    case keys do
-      [] ->
-        data
-
-      ["*"] ->
-        cond do
-          is_list(data) ->
-            Enum.map(data, &reveal(tree["*"], &1))
-
-          is_map(data) ->
+    tree
+    |> Map.keys()
+    |> (fn
+          [] ->
             data
-            |> Map.keys()
-            |> Enum.map(&[&1, reveal(tree["*"], data[&1])])
-            |> Map.new(fn pair -> List.to_tuple(pair) end)
 
-          true ->
-            raise ArgumentError, message: "Wrong type for data: #{inspect(data)}"
-        end
+          ["*"] ->
+            cond do
+              is_list(data) ->
+                Enum.map(data, &reveal(tree["*"], &1))
 
-      _ ->
-        cond do
-          is_list(data) ->
-            Enum.map(data, &reveal(tree, &1))
+              is_map(data) ->
+                data
+                |> Map.keys()
+                |> Enum.map(&[&1, reveal(tree["*"], data[&1])])
+                |> Map.new(fn pair -> List.to_tuple(pair) end)
 
-          is_map(data) ->
-            keys
-            |> Enum.map(&[&1, reveal(tree[&1], data[&1])])
-            |> Map.new(fn pair -> List.to_tuple(pair) end)
+              true ->
+                raise ArgumentError, message: "Wrong type for data: #{inspect(data)}"
+            end
 
-          true ->
-            raise ArgumentError, message: "Wrong type for data: #{inspect(data)}"
-        end
-    end
+          keys ->
+            cond do
+              is_list(data) ->
+                Enum.map(data, &reveal(tree, &1))
+
+              is_map(data) ->
+                keys
+                |> Enum.map(&[&1, reveal(tree[&1], data[&1])])
+                |> Map.new(fn pair -> List.to_tuple(pair) end)
+
+              true ->
+                raise ArgumentError, message: "Wrong type for data: #{inspect(data)}"
+            end
+        end).()
   end
 
   @doc ~S"""
