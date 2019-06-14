@@ -4,8 +4,34 @@ defmodule FieldMask do
   """
   @delimiters [",", "/", "(", ")"]
 
-  @doc """
+  @doc ~S"""
   Get JSON result as a map masked by text
+
+  ## Examples
+
+      iex> FieldMask.mask("a,b", %{"a" => 1, "b" => 2, "c" => 3})
+      {:ok, %{"a" => 1, "b" => 2}}
+
+      iex> FieldMask.mask("a/b", %{"a" => %{"b" => 2, "c" => 3}})
+      {:ok, %{"a" => %{"b" => 2}}}
+
+      iex> FieldMask.mask("a(b,c)", %{"a" => %{"b" => 1, "c" => 2, "d" => 3}, "e" => 4})
+      {:ok, %{"a" => %{"b" => 1, "c" => 2}}}
+
+      iex> FieldMask.mask("a/*/c", %{"a" => %{"b" => %{"c" => 2, "e" => 1}, "d" => %{ "c" => 4, "f" => 3}}})
+      {:ok, %{"a" => %{"b" => %{"c" => 2}, "d" => %{"c" => 4}}}}
+
+      iex> FieldMask.mask("a/*/c", %{"a" => [%{"c" => 2, "e" => 1}, %{ "c" => 4, "f" => 3}]})
+      {:error, "%ArgumentError{message: \"Wrong type for data: [%{\\\"c\\\" => 2, \\\"e\\\" => 1}, %{\\\"c\\\" => 4, \\\"f\\\" => 3}]\"}"}
+
+      iex> FieldMask.mask("a/b", %{"a" => 1, "b" => 2, "c" => 3})
+      {:error, "%ArgumentError{message: \"Wrong type for data: 1\"}"}
+
+      iex> FieldMask.mask("a/b)", %{"a" => 1, "b" => 2, "c" => 3})
+      {:error, "Invalid text with mismatched brackets: a/b)"}
+
+      iex> FieldMask.mask("a/*/c", %{"a" => {%{"c" => 2, "e" => 1}, %{ "c" => 4, "f" => 3}}})
+      {:error, "%ArgumentError{message: \"Wrong type for data: {%{\\\"c\\\" => 2, \\\"e\\\" => 1}, %{\\\"c\\\" => 4, \\\"f\\\" => 3}}\"}"}
   """
   def mask(text, data) when is_binary(text) do
     text
@@ -25,34 +51,8 @@ defmodule FieldMask do
         end).()
   end
 
-  @doc ~S"""
+  @doc """
   Get JSON result as a map from compiled tree
-
-  ## Examples
-
-      iex> FieldMask.mask("a,b", %{"a" => 1, "b" => 2, "c" => 3})
-      {:ok, %{"a" => 1, "b" => 2}}
-
-      iex> FieldMask.mask("a/b", %{"a" => %{"b" => 2, "c" => 3}})
-      {:ok, %{"a" => %{"b" => 2}}}
-
-      iex> FieldMask.mask("a(b,c)", %{"a" => %{"b" => 1, "c" => 2, "d" => 3}, "e" => 4})
-      {:ok, %{"a" => %{"b" => 1, "c" => 2}}}
-
-      iex> FieldMask.mask("a/*/c", %{"a" => %{"b" => %{"c" => 2, "e" => 1}, "d" => %{ "c" => 4, "f" => 3}}})
-      {:ok, %{"a" => %{"b" => %{"c" => 2}, "d" => %{"c" => 4}}}}
-
-      iex> FieldMask.mask("a/*/c", %{"a" => [%{"c" => 2, "e" => 1}, %{ "c" => 4, "f" => 3}]})
-      {:ok, %{"a" => [%{"c" => 2}, %{"c" => 4}]}}
-
-      iex> FieldMask.mask("a/b", %{"a" => 1, "b" => 2, "c" => 3})
-      {:error, "%ArgumentError{message: \"Wrong type for data: 1\"}"}
-
-      iex> FieldMask.mask("a/b)", %{"a" => 1, "b" => 2, "c" => 3})
-      {:error, "Invalid text with mismatched brackets: a/b)"}
-
-      iex> FieldMask.mask("a/*/c", %{"a" => {%{"c" => 2, "e" => 1}, %{ "c" => 4, "f" => 3}}})
-      {:error, "%ArgumentError{message: \"Wrong type for data: {%{\\\"c\\\" => 2, \\\"e\\\" => 1}, %{\\\"c\\\" => 4, \\\"f\\\" => 3}}\"}"}
   """
   def reveal(tree, data) when is_map(tree) do
     tree
@@ -62,18 +62,13 @@ defmodule FieldMask do
             data
 
           ["*"] ->
-            cond do
-              is_list(data) ->
-                Enum.map(data, &reveal(tree["*"], &1))
-
-              is_map(data) ->
-                data
-                |> Map.keys()
-                |> Enum.map(&[&1, reveal(tree["*"], data[&1])])
-                |> Map.new(fn pair -> List.to_tuple(pair) end)
-
-              true ->
-                raise ArgumentError, message: "Wrong type for data: #{inspect(data)}"
+            if is_map(data) do
+              data
+              |> Map.keys()
+              |> Enum.map(&[&1, reveal(tree["*"], data[&1])])
+              |> Map.new(fn pair -> List.to_tuple(pair) end)
+            else
+              raise ArgumentError, message: "Wrong type for data: #{inspect(data)}"
             end
 
           keys ->

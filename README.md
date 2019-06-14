@@ -37,7 +37,7 @@ iex> FieldMask.mask("a/*/c", %{"a" => %{"b" => %{"c" => 2, "e" => 1}, "d" => %{ 
 {:ok, %{"a" => %{"b" => %{"c" => 2}, "d" => %{"c" => 4}}}}
 
 iex> FieldMask.mask("a/*/c", %{"a" => [%{"c" => 2, "e" => 1}, %{ "c" => 4, "f" => 3}]})
-{:ok, %{"a" => [%{"c" => 2}, %{"c" => 4}]}}
+{:error, "%ArgumentError{message: \"Wrong type for data: [%{\\\"c\\\" => 2, \\\"e\\\" => 1}, %{\\\"c\\\" => 4, \\\"f\\\" => 3}]\"}"}
 
 iex> FieldMask.mask("a/b", %{"a" => 1, "b" => 2, "c" => 3})
 {:error, "%ArgumentError{message: \"Wrong type for data: 1\"}"}
