@@ -57,11 +57,11 @@ defmodule FieldMask do
   def reveal(tree, data) when is_map(tree) do
     keys = Map.keys(tree)
 
-    cond do
-      keys === [] ->
+    case keys do
+      [] ->
         data
 
-      keys === ["*"] ->
+      ["*"] ->
         cond do
           is_list(data) ->
             Enum.map(data, &reveal(tree["*"], &1))
@@ -76,7 +76,7 @@ defmodule FieldMask do
             raise ArgumentError, message: "Wrong type for data: #{inspect(data)}"
         end
 
-      true ->
+      _ ->
         cond do
           is_list(data) ->
             Enum.map(data, &reveal(tree, &1))
