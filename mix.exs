@@ -25,8 +25,7 @@ defmodule FieldMask.MixProject do
           "Author" => "http://maples7.com/about/"
         },
         maintainers: ["Maples7", "lib/*", ".formatter.exs"],
-        files: ~w(lib priv .formatter.exs mix.exs README* readme* LICENSE*
-                license* CHANGELOG* changelog* src version Makefile)
+        files: ~w(lib .formatter.exs mix.exs README* LICENSE* CHANGELOG* version Makefile)
       ],
       docs: [
         extras: ["README.md", "CHANGELOG.md"],
