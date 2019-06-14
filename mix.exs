@@ -10,7 +10,7 @@ defmodule FieldMask.MixProject do
       version: @version,
       elixir: "~> 1.8",
       description:
-        "FieldMask implements Partial Responses protocol of Google+ API purely in Elixir via algorithmic method rather than Grammar way",
+        "FieldMask implements Partial Responses protocol of Google+ API purely in Elixir via algorithmic method rather than grammar way",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
