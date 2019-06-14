@@ -24,7 +24,9 @@ defmodule FieldMask.MixProject do
           "Docs" => "https://hexdocs.pm/ex_fieldmask",
           "Author" => "http://maples7.com/about/"
         },
-        maintainers: ["Maples7"]
+        maintainers: ["Maples7", "lib/*", ".formatter.exs"],
+        files: ~w(lib priv .formatter.exs mix.exs README* readme* LICENSE*
+                license* CHANGELOG* changelog* src version Makefile)
       ],
       docs: [
         extras: ["README.md", "CHANGELOG.md"],
