@@ -184,8 +184,7 @@ defmodule FieldMask do
       end
     )
     |> Enum.reduce([], fn item, acc ->
-      chars = elem(item, 0)
-      delimiter = elem(item, 1)
+      {chars, delimiter} = item
       [delimiter, Enum.join(chars) | acc]
     end)
     |> Enum.reverse()
