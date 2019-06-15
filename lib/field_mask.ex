@@ -188,7 +188,7 @@ defmodule FieldMask do
       [delimiter, Enum.join(chars) | acc]
     end)
     |> Enum.reverse()
-    |> Enum.filter(fn str -> str !== nil and str !== "" end)
+    |> Enum.filter(&(&1 !== nil and &1 !== ""))
   end
 
   @doc """
