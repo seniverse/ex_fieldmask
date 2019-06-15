@@ -183,8 +183,7 @@ defmodule FieldMask do
         acc -> {:cont, {Enum.reverse(acc), nil}, []}
       end
     )
-    |> Enum.reduce([], fn item, acc ->
-      {chars, delimiter} = item
+    |> Enum.reduce([], fn {chars, delimiter}, acc ->
       [delimiter, Enum.join(chars) | acc]
     end)
     |> Enum.reverse()
