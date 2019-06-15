@@ -37,18 +37,13 @@ defmodule FieldMask do
     text
     |> compile()
     |> (fn
-          {:ok, tree} ->
-            try do
-              {:ok, reveal(tree, data)}
-            rescue
-              e in ArgumentError ->
-                {:error, inspect(e)}
-                # err -> {:error, "Fail to mask data with text: #{inspect(err)}"}
-            end
-
-          err ->
-            err
+          {:ok, tree} -> {:ok, reveal(tree, data)}
+          err -> err
         end).()
+  rescue
+    e in ArgumentError ->
+      {:error, inspect(e)}
+      # err -> {:error, "Fail to mask data with text: #{inspect(err)}"}
   end
 
   @doc """
