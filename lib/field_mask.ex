@@ -135,6 +135,12 @@ defmodule FieldMask do
 
       iex> FieldMask.scan("")
       []
+
+      iex> FieldMask.scan("(a,b)")
+      ["(", "a", ",", "b", ")"]
+
+      iex> FieldMask.scan("a/*")
+      ["a", "/", "*"]
   """
   def scan(text) when is_binary(text) do
     text
@@ -149,7 +155,6 @@ defmodule FieldMask do
         end
       end,
       fn
-        [] -> {:cont, [[], nil]}
         acc -> {:cont, {Enum.reverse(acc), nil}, []}
       end
     )

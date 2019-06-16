@@ -16,7 +16,7 @@ The package can be installed by adding `ex_fieldmask` to your list of dependenci
 ```elixir
 def deps do
   [
-    {:ex_fieldmask, "~> 0.1.0"} # replace version with newest one
+    {:ex_fieldmask, "~> 0.3.0"} # replace version with newest one
   ]
 end
 ```
