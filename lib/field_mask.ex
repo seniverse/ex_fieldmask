@@ -136,11 +136,8 @@ defmodule FieldMask do
       iex> FieldMask.scan("")
       []
 
-      iex> FieldMask.scan("(a,b)")
-      ["(", "a", ",", "b", ")"]
-
-      iex> FieldMask.scan("a/*")
-      ["a", "/", "*"]
+      iex> FieldMask.scan("abc/*")
+      ["abc", "/", "*"]
   """
   def scan(text) when is_binary(text) do
     text

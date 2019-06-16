@@ -1,3 +1,8 @@
+## 0.3.0 (June 16, 2019)
+
+- let it crash, do not rescue inside
+- simlify and refactor implement with pattern matching to improve performace
+
 ## 0.2.0 (June 15, 2019)
 
 - make `a/*/c` when field a is an array invalid
@@ -6,4 +11,4 @@
 
 ## 0.1.0 (June 13, 2019)
 
-- Finish basic function and publish it to Hex with ❤️
+- finish basic function and publish it to Hex with ❤️
