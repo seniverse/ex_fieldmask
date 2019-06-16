@@ -190,29 +190,25 @@ defmodule FieldMask do
   """
   def parse(tokens) do
     tokens
-    |> Enum.reduce({%{}, [], [], nil}, fn token, acc ->
-      {tree, path, stack, last_token} = acc
+    |> Enum.reduce({%{}, [], [], nil}, fn
+      ",", {tree, path, stack, last_token} ->
+        if List.first(stack) === "/" do
+          {tree, tl(path), tl(stack), ","}
+        else
+          {tree, path, stack, last_token}
+        end
 
-      case token do
-        "," ->
-          if List.first(stack) === "/" do
-            {tree, tl(path), tl(stack), token}
-          else
-            acc
-          end
+      "/", {tree, path, stack, last_token} ->
+        {tree, [last_token | path], ["/" | stack], "/"}
 
-        "/" ->
-          {tree, [last_token | path], [token | stack], token}
+      "(", {tree, path, stack, last_token} ->
+        {tree, [last_token | path], ["(" | stack], "("}
 
-        "(" ->
-          {tree, [last_token | path], [token | stack], token}
+      ")", {tree, path, stack, _} ->
+        {tree, tl(path), [")" | stack], ")"}
 
-        ")" ->
-          {tree, tl(path), [token | stack], token}
-
-        _ ->
-          {put_in(tree, Enum.reverse([token | path]), %{}), path, stack, token}
-      end
+      token, {tree, path, stack, _} ->
+        {put_in(tree, Enum.reverse([token | path]), %{}), path, stack, token}
     end)
   end
 end
