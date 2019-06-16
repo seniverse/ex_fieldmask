@@ -36,20 +36,13 @@ iex> FieldMask.mask("a(b,c)", %{"a" => %{"b" => 1, "c" => 2, "d" => 3}, "e" => 4
 iex> FieldMask.mask("a/*/c", %{"a" => %{"b" => %{"c" => 2, "e" => 1}, "d" => %{ "c" => 4, "f" => 3}}})
 {:ok, %{"a" => %{"b" => %{"c" => 2}, "d" => %{"c" => 4}}}}
 
-iex> FieldMask.mask("a/*/c", %{"a" => [%{"c" => 2, "e" => 1}, %{ "c" => 4, "f" => 3}]})
-{:error, "%ArgumentError{message: \"Wrong type for data: [%{\\\"c\\\" => 2, \\\"e\\\" => 1}, %{\\\"c\\\" => 4, \\\"f\\\" => 3}]\"}"}
-
-iex> FieldMask.mask("a/b", %{"a" => 1, "b" => 2, "c" => 3})
-{:error, "%ArgumentError{message: \"Wrong type for data: 1\"}"}
-
 iex> FieldMask.mask("a/b)", %{"a" => 1, "b" => 2, "c" => 3})
 {:error, "Invalid text with mismatched brackets: a/b)"}
-
-iex> FieldMask.mask("a/*/c", %{"a" => {%{"c" => 2, "e" => 1}, %{ "c" => 4, "f" => 3}}})
-{:error, "%ArgumentError{message: \"Wrong type for data: {%{\\\"c\\\" => 2, \\\"e\\\" => 1}, %{\\\"c\\\" => 4, \\\"f\\\" => 3}}\"}"}
 ```
 
-It returns `{:ok, masked_json}` or `{:error, error_message}`. `masked_json` is either a Map or a List in Elixir and `error_message` is a String.
+Check test folder to see more examples.
+
+It returns `{:ok, masked_json}` or `{:error, error_message}`. `masked_json` is either a Map or a List in Elixir and `error_message` is a String. Besides, if `text` in invalid or data isn't a decoded JSON, exception would be raised. You are expected to `rescue` the exception or just let it crash catering to the actual condition.
 
 Use [`Poison`](https://github.com/devinus/poison) or other JSON related packages to encode/decode a JSON to/from inner data structure of Elixir.
 

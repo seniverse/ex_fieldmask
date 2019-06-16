@@ -21,17 +21,8 @@ defmodule FieldMask do
       iex> FieldMask.mask("a/*/c", %{"a" => %{"b" => %{"c" => 2, "e" => 1}, "d" => %{ "c" => 4, "f" => 3}}})
       {:ok, %{"a" => %{"b" => %{"c" => 2}, "d" => %{"c" => 4}}}}
 
-      iex> FieldMask.mask("a/*/c", %{"a" => [%{"c" => 2, "e" => 1}, %{ "c" => 4, "f" => 3}]})
-      {:error, "%ArgumentError{message: \"Wrong type for data: [%{\\\"c\\\" => 2, \\\"e\\\" => 1}, %{\\\"c\\\" => 4, \\\"f\\\" => 3}]\"}"}
-
-      iex> FieldMask.mask("a/b", %{"a" => 1, "b" => 2, "c" => 3})
-      {:error, "%ArgumentError{message: \"Wrong type for data: 1\"}"}
-
       iex> FieldMask.mask("a/b)", %{"a" => 1, "b" => 2, "c" => 3})
       {:error, "Invalid text with mismatched brackets: a/b)"}
-
-      iex> FieldMask.mask("a/*/c", %{"a" => {%{"c" => 2, "e" => 1}, %{ "c" => 4, "f" => 3}}})
-      {:error, "%ArgumentError{message: \"Wrong type for data: {%{\\\"c\\\" => 2, \\\"e\\\" => 1}, %{\\\"c\\\" => 4, \\\"f\\\" => 3}}\"}"}
   """
   def mask(text, data) when is_binary(text) do
     text
@@ -40,10 +31,6 @@ defmodule FieldMask do
           {:ok, tree} -> {:ok, reveal(tree, data)}
           err -> err
         end).()
-  rescue
-    e in ArgumentError ->
-      {:error, inspect(e)}
-      # err -> {:error, "Fail to mask data with text: #{inspect(err)}"}
   end
 
   @doc """
@@ -57,27 +44,20 @@ defmodule FieldMask do
             data
 
           ["*"] ->
-            if is_map(data) do
-              data
-              |> Map.keys()
-              |> Enum.map(&[&1, reveal(tree["*"], data[&1])])
-              |> Map.new(fn pair -> List.to_tuple(pair) end)
-            else
-              raise ArgumentError, message: "Wrong type for data: #{inspect(data)}"
-            end
+            data
+            |> Map.keys()
+            |> Enum.map(&[&1, reveal(tree["*"], data[&1])])
+            |> Map.new(fn pair -> List.to_tuple(pair) end)
 
           keys ->
-            cond do
-              is_list(data) ->
+            case data do
+              data when is_list(data) ->
                 Enum.map(data, &reveal(tree, &1))
 
-              is_map(data) ->
+              data when is_map(data) ->
                 keys
                 |> Enum.map(&[&1, reveal(tree[&1], data[&1])])
                 |> Map.new(fn pair -> List.to_tuple(pair) end)
-
-              true ->
-                raise ArgumentError, message: "Wrong type for data: #{inspect(data)}"
             end
         end).()
   end
@@ -120,9 +100,6 @@ defmodule FieldMask do
 
       iex> FieldMask.compile("a(b,c")
       {:error, "Invalid text with mismatched brackets: a(b,c"}
-
-      iex> FieldMask.compile("a(b//c")
-      {:error, "Fail to parse text a(b//c: %ArgumentError{message: \"could not put/update key \\\"c\\\" on a nil value\"}"}
   """
   def compile(text) when is_binary(text) do
     text
@@ -143,8 +120,6 @@ defmodule FieldMask do
                 _ -> {:error, "Invalid text with mismatched brackets: #{text}"}
               end).()
         end).()
-  rescue
-    e -> {:error, "Fail to parse text #{text}: #{inspect(e)}"}
   end
 
   @doc """

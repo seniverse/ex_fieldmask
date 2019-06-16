@@ -41,4 +41,31 @@ defmodule FieldMaskTest do
 
     assert FieldMask.mask(text, array) === {:ok, [%{"a" => 1, "b" => 2}, %{"a" => 4, "b" => 5}]}
   end
+
+  test "a/*/b with a is an array" do
+    text = "a/*/c"
+    data = %{"a" => [%{"c" => 2, "e" => 1}, %{"c" => 4, "f" => 3}]}
+
+    assert_raise BadMapError, fn -> FieldMask.mask(text, data) end
+  end
+
+  test "a/*/b with a is an tuple" do
+    text = "a/*/c"
+    data = %{"a" => {%{"c" => 2, "e" => 1}, %{"c" => 4, "f" => 3}}}
+
+    assert_raise BadMapError, fn -> FieldMask.mask(text, data) end
+  end
+
+  test "data is uncompitable with text" do
+    text = "a/b"
+    data = %{"a" => 1, "b" => 2, "c" => 3}
+
+    assert_raise CaseClauseError, fn -> FieldMask.mask(text, data) end
+  end
+
+  test "invalid test except for mismatched brackets" do
+    text = "a(b//c"
+
+    assert_raise ArgumentError, fn -> FieldMask.compile(text) end
+  end
 end
