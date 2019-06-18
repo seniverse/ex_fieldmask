@@ -41,13 +41,11 @@ defmodule FieldMask do
             data
 
           ["*"] ->
-            data
-            |> Map.keys()
-            |> (fn keys ->
-                  for key <- keys, into: %{} do
-                    {key, reveal(tree["*"], data[key])}
-                  end
-                end).()
+            keys = Map.keys(data)
+
+            for key <- keys, into: %{} do
+              {key, reveal(tree["*"], data[key])}
+            end
 
           keys ->
             case data do
@@ -57,12 +55,9 @@ defmodule FieldMask do
                 end
 
               data when is_map(data) ->
-                keys
-                |> (fn keys ->
-                      for key <- keys, into: %{} do
-                        {key, reveal(tree[key], data[key])}
-                      end
-                    end).()
+                for key <- keys, into: %{} do
+                  {key, reveal(tree[key], data[key])}
+                end
             end
         end).()
   end
