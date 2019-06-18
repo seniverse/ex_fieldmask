@@ -33,10 +33,7 @@ defmodule FieldMask do
         end).()
   end
 
-  @doc """
-  Get JSON result as a map from compiled tree
-  """
-  def reveal(tree, data) when is_map(tree) do
+  defp reveal(tree, data) when is_map(tree) do
     tree
     |> Map.keys()
     |> (fn
