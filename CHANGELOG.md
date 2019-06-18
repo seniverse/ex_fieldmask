@@ -1,3 +1,7 @@
+## 0.3.2 (June 18, 2019)
+
+- simpify code of list comprehensions
+
 ## 0.3.1 (June 18, 2019)
 
 - adopt list comprehensions to replace Enum.map to improve performance
