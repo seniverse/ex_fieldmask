@@ -1,3 +1,7 @@
+## 0.3.3 (June 18, 2019)
+
+- refactor: use list comprehensions to replace most Enum functions to highly improve performance
+
 ## 0.3.2 (June 18, 2019)
 
 - simplify code of list comprehensions
