@@ -46,18 +46,26 @@ defmodule FieldMask do
           ["*"] ->
             data
             |> Map.keys()
-            |> Enum.map(&[&1, reveal(tree["*"], data[&1])])
-            |> Map.new(fn pair -> List.to_tuple(pair) end)
+            |> (fn keys ->
+                  for key <- keys, into: %{} do
+                    {key, reveal(tree["*"], data[key])}
+                  end
+                end).()
 
           keys ->
             case data do
               data when is_list(data) ->
-                Enum.map(data, &reveal(tree, &1))
+                for item <- data do
+                  reveal(tree, item)
+                end
 
               data when is_map(data) ->
                 keys
-                |> Enum.map(&[&1, reveal(tree[&1], data[&1])])
-                |> Map.new(fn pair -> List.to_tuple(pair) end)
+                |> (fn keys ->
+                      for key <- keys, into: %{} do
+                        {key, reveal(tree[key], data[key])}
+                      end
+                    end).()
             end
         end).()
   end
