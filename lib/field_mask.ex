@@ -106,19 +106,21 @@ defmodule FieldMask do
     |> scan()
     |> parse()
     |> (fn {tree, _, stack, _} ->
-          stack
-          |> Enum.reverse()
-          |> Enum.reduce(0, fn token, acc ->
-            case token do
-              "(" -> acc + 1
-              ")" -> acc - 1
-              _ -> acc
+          pairs_count =
+            for char <- stack, reduce: 0 do
+              acc ->
+                case char do
+                  "(" -> acc + 1
+                  ")" -> acc - 1
+                  _ -> acc
+                end
             end
-          end)
-          |> (fn
-                0 -> {:ok, tree}
-                _ -> {:error, "Invalid text with mismatched brackets: #{text}"}
-              end).()
+
+          if pairs_count === 0 do
+            {:ok, tree}
+          else
+            {:error, "Invalid text with mismatched brackets: #{text}"}
+          end
         end).()
   end
 
@@ -140,54 +142,51 @@ defmodule FieldMask do
       ["abc", "/", "*"]
   """
   def scan(text) when is_binary(text) do
-    text
-    |> String.graphemes()
-    |> Enum.chunk_while(
-      [],
-      fn char, acc ->
-        if char in @delimiters do
-          {:cont, {Enum.reverse(acc), char}, []}
-        else
-          {:cont, [char | acc]}
-        end
-      end,
-      fn
-        acc -> {:cont, {Enum.reverse(acc), nil}, []}
+    {result, state} =
+      for char <- String.graphemes(text), reduce: {[], []} do
+        {result, state} ->
+          if char in @delimiters do
+            case state !== [] do
+              true -> {[char, state |> Enum.reverse() |> Enum.join() | result], []}
+              false -> {[char | result], []}
+            end
+          else
+            {result, [char | state]}
+          end
       end
-    )
-    |> Enum.reduce([], fn
-      {[], nil}, acc -> acc
-      {[], delimiter}, acc -> [delimiter | acc]
-      {chars, nil}, acc -> [Enum.join(chars) | acc]
-      {chars, delimiter}, acc -> [delimiter, Enum.join(chars) | acc]
-    end)
-    |> Enum.reverse()
+
+    case state !== [] do
+      true -> [Enum.join(state) | result] |> Enum.reverse()
+      false -> result |> Enum.reverse()
+    end
   end
 
   @doc """
   Parse JSON tree from tokens
   """
   def parse(tokens) do
-    tokens
-    |> Enum.reduce({%{}, [], [], nil}, fn
-      "," = token, {tree, path, stack, last_token} ->
-        if List.first(stack) === "/" do
-          {tree, tl(path), tl(stack), token}
-        else
-          {tree, path, stack, last_token}
+    for token <- tokens, reduce: {%{}, [], [], nil} do
+      {tree, path, stack, last_token} ->
+        case token do
+          "," ->
+            if List.first(stack) === "/" do
+              {tree, tl(path), tl(stack), token}
+            else
+              {tree, path, stack, last_token}
+            end
+
+          "/" ->
+            {tree, [last_token | path], [token | stack], token}
+
+          "(" ->
+            {tree, [last_token | path], [token | stack], token}
+
+          ")" ->
+            {tree, tl(path), [token | stack], token}
+
+          _ ->
+            {put_in(tree, Enum.reverse([token | path]), %{}), path, stack, token}
         end
-
-      "/" = token, {tree, path, stack, last_token} ->
-        {tree, [last_token | path], [token | stack], token}
-
-      "(" = token, {tree, path, stack, last_token} ->
-        {tree, [last_token | path], [token | stack], token}
-
-      ")" = token, {tree, path, stack, _} ->
-        {tree, tl(path), [token | stack], token}
-
-      token, {tree, path, stack, _} ->
-        {put_in(tree, Enum.reverse([token | path]), %{}), path, stack, token}
-    end)
+    end
   end
 end
