@@ -1,3 +1,7 @@
+## 0.3.1 (June 18, 2019)
+
+- adopt list comprehensions to replace Enum.map to improve performance
+
 ## 0.3.0 (June 16, 2019)
 
 - let it crash, do not rescue inside
