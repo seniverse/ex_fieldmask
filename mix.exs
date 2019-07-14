@@ -42,10 +42,12 @@ defmodule FieldMask.MixProject do
 
   defp deps do
     [
+      {:nimble_parsec, "~> 0.5.0", only: :dev},
       {:pre_commit_hook, ">= 1.2.0", only: :dev, runtime: false},
       {:credo, ">= 1.0.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.11", only: [:dev, :test], runtime: false}
+      {:excoveralls, "~> 0.11", only: [:dev, :test], runtime: false},
+      {:benchee, "~> 1.0", only: :dev}
     ]
   end
 end
