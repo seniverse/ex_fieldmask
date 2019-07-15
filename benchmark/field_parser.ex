@@ -12,24 +12,29 @@ defmodule FieldParser do
   """
   import NimbleParsec
 
-  defparsec(:name, utf8_string([{:not, ?,}, {:not, ?(..?)}, {:not, ?/}, {:not, ?*}], min: 1))
+  defparsec(:name, utf8_string([{:not, ?,}, {:not, ?(..?)}, {:not, ?/}, {:not, ?*}], min: 1),
+    inline: true
+  )
 
   defparsec(
     :object,
-    choice([parsec(:name), string("*")]) |> optional(string("/") |> parsec(:object))
+    choice([parsec(:name), string("*")]) |> optional(string("/") |> parsec(:object)),
+    inline: true
   )
 
   defparsec(
     :array,
-    parsec(:name) |> string("(") |> parsec(:props) |> string(")")
+    parsec(:name) |> string("(") |> parsec(:props) |> string(")"),
+    inline: true
   )
 
-  defparsec(:prop, choice([parsec(:array), parsec(:object)]))
+  defparsec(:prop, choice([parsec(:array), parsec(:object)]), inline: true)
 
   defparsec(
     :props,
-    parsec(:prop) |> optional(string(",") |> parsec(:props))
+    parsec(:prop) |> optional(string(",") |> parsec(:props)),
+    inline: true
   )
 
-  defparsec(:parser, parsec(:props) |> eos())
+  defparsec(:parser, parsec(:props) |> eos(), inline: true)
 end
